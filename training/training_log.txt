@@ -1,0 +1,9 @@
+2025-05-02 18:12:35,128 - INFO - Loaded labels from data\mini_dataset\labels.csv with shape (400, 5)
+2025-05-02 18:12:35,163 - INFO - Applied dummy feature extraction.
+2025-05-02 18:12:35,171 - INFO - Data split: Train=288, Val=32, Test=80
+2025-05-02 18:12:35,175 - INFO - Saved preprocessed data to data\mini_dataset\processed_data.pkl
+2025-05-02 18:17:50,585 - INFO - Loaded labels from data\mini_dataset\labels.csv with shape (400, 5)
+2025-05-02 18:17:50,587 - INFO - Data shape after dropping NA: (400, 5)
+2025-05-02 18:17:50,592 - INFO - Applied dummy feature extraction.
+2025-05-02 18:17:50,603 - INFO - Data split: Train=288, Val=32, Test=80
+2025-05-02 18:17:50,607 - INFO - Saved preprocessed data to data\mini_dataset\processed_data.pkl
