@@ -24,70 +24,146 @@ from preprocessing.extract_all_audio_features import extract_mfcc_features
 from preprocessing.transcribe_audio import transcribe_audio
 from preprocessing.extract_all_text_features import extract_text_features
 
+# Page configuration - MUST BE FIRST STREAMLIT COMMAND
+st.set_page_config(
+    page_title="🎬 Multimodal Sentiment Analyzer",
+    page_icon="🎭",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # Custom CSS for professional styling
 st.markdown("""
 <style>
-    /* Main theme colors */
+    /* Main theme colors - Updated with lighter accents */
     :root {
         --primary-bg: #0f172a;
         --secondary-bg: #1e293b;
+        --light-bg: #f8fafc;
         --accent-color: #3b82f6;
+        --accent-light: #60a5fa;
         --text-primary: #f8fafc;
         --text-secondary: #cbd5e1;
+        --text-dark: #334155;
         --success-color: #10b981;
         --error-color: #ef4444;
         --warning-color: #f59e0b;
         --neutral-color: #6b7280;
         --card-bg: #334155;
+        --card-bg-light: #f1f5f9;
         --border-color: #475569;
+        --border-light: #e2e8f0;
     }
 
-    /* Global styles */
+    /* Global styles - Added lighter gradient */
     .main {
-        background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+        background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 50%, #2d3748 100%);
         color: var(--text-primary);
     }
 
-    /* Header styling */
+    /* Header styling - Enhanced with lighter elements */
     .title-container {
-        background: linear-gradient(135deg, var(--accent-color), #1d4ed8);
+        background: linear-gradient(135deg, var(--accent-color), #1d4ed8, #3b82f6);
         padding: 2rem;
         border-radius: 15px;
         margin-bottom: 2rem;
         text-align: center;
         box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .title-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+        pointer-events: none;
     }
 
     .main-title {
         font-size: 3rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
-        background: linear-gradient(45deg, #ffffff, #e2e8f0);
+        background: linear-gradient(45deg, #ffffff, #e2e8f0, #f1f5f9);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        position: relative;
+        z-index: 1;
     }
 
     .subtitle {
         font-size: 1.2rem;
         color: #bfdbfe;
         margin-bottom: 0;
+        position: relative;
+        z-index: 1;
     }
 
-    /* Card styling */
+    /* Card styling - Equal height and enhanced */
     .feature-card {
-        background: var(--card-bg);
+        background: linear-gradient(135deg, var(--card-bg) 0%, #475569 100%);
         border: 1px solid var(--border-color);
         border-radius: 12px;
         padding: 1.5rem;
         margin: 1rem 0;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: all 0.3s ease;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+        pointer-events: none;
     }
 
     .feature-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        border-color: var(--accent-light);
+    }
+
+    .feature-card:hover::before {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+    }
+
+    .card-title {
+        color: var(--accent-color);
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .card-content {
+        flex: 1;
+        position: relative;
+        z-index: 1;
+    }
+
+    .card-content p {
+        color: #cbd5e1;
+        margin: 0;
+        line-height: 1.6;
     }
 
     .card-title {
@@ -336,14 +412,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Page configuration
-st.set_page_config(
-    page_title="🎬 Multimodal Sentiment Analyzer",
-    page_icon="🎭",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
 # Sidebar with information
 with st.sidebar:
     st.markdown("""
@@ -421,9 +489,9 @@ with col1:
     st.markdown("""
     <div class="feature-card">
         <div class="card-title">🎥 Video Analysis</div>
-        <p style="color: #cbd5e1; margin: 0;">
-            Extracts visual features using ResNet18 CNN to analyze facial expressions, gestures, and body language.
-        </p>
+        <div class="card-content">
+            <p>Extracts visual features using ResNet18 CNN to analyze facial expressions, gestures, and body language for comprehensive visual sentiment cues.</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -431,9 +499,9 @@ with col2:
     st.markdown("""
     <div class="feature-card">
         <div class="card-title">🎵 Audio Analysis</div>
-        <p style="color: #cbd5e1; margin: 0;">
-            Processes acoustic features using MFCCs to detect tone, pitch, and emotional cues in speech.
-        </p>
+        <div class="card-content">
+            <p>Processes acoustic features using MFCCs to detect tone, pitch, rhythm, and emotional cues in speech patterns and vocal expressions.</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -441,9 +509,9 @@ with col3:
     st.markdown("""
     <div class="feature-card">
         <div class="card-title">📝 Text Analysis</div>
-        <p style="color: #cbd5e1; margin: 0;">
-            Leverages DistilBERT embeddings to understand semantic meaning and contextual sentiment in transcribed speech.
-        </p>
+        <div class="card-content">
+            <p>Leverages DistilBERT embeddings to understand semantic meaning and contextual sentiment in transcribed speech content.</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
