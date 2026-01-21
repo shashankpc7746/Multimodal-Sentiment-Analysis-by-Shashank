@@ -12,7 +12,7 @@ OUTPUT_PATH = 'data/mini_dataset/mini_video_features.pkl'
 
 # Pretrained CNN model (ResNet18)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-resnet = models.resnet18(pretrained=True)
+resnet = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
 resnet = torch.nn.Sequential(*list(resnet.children())[:-1])  # Remove final classifier
 resnet.to(device)
 resnet.eval()

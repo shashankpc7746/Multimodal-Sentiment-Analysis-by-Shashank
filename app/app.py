@@ -35,40 +35,40 @@ st.set_page_config(
 # Custom CSS for professional styling
 st.markdown("""
 <style>
-    /* Main theme colors - Updated with lighter accents */
+    /* Main theme colors - Light theme with professional accents */
     :root {
-        --primary-bg: #0f172a;
-        --secondary-bg: #1e293b;
-        --light-bg: #f8fafc;
-        --accent-color: #3b82f6;
-        --accent-light: #60a5fa;
-        --text-primary: #f8fafc;
-        --text-secondary: #cbd5e1;
-        --text-dark: #334155;
-        --success-color: #10b981;
-        --error-color: #ef4444;
-        --warning-color: #f59e0b;
+        --primary-bg: #ffffff;
+        --secondary-bg: #f8fafc;
+        --light-bg: #f1f5f9;
+        --accent-color: #2563eb;
+        --accent-light: #3b82f6;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --text-dark: #0f172a;
+        --success-color: #059669;
+        --error-color: #dc2626;
+        --warning-color: #d97706;
         --neutral-color: #6b7280;
-        --card-bg: #334155;
-        --card-bg-light: #f1f5f9;
-        --border-color: #475569;
-        --border-light: #e2e8f0;
+        --card-bg: #ffffff;
+        --card-bg-light: #f8fafc;
+        --border-color: #e2e8f0;
+        --border-light: #f1f5f9;
     }
 
-    /* Global styles - Added lighter gradient */
+    /* Global styles - Light gradient */
     .main {
-        background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 50%, #2d3748 100%);
+        background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 50%, #e2e8f0 100%);
         color: var(--text-primary);
     }
 
-    /* Header styling - Enhanced with lighter elements */
+    /* Header styling - Light theme */
     .title-container {
         background: linear-gradient(135deg, var(--accent-color), #1d4ed8, #3b82f6);
         padding: 2rem;
         border-radius: 15px;
         margin-bottom: 2rem;
         text-align: center;
-        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15);
         position: relative;
         overflow: hidden;
     }
@@ -80,7 +80,7 @@ st.markdown("""
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+        background: linear-gradient(45deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,255,255,0.2) 100%);
         pointer-events: none;
     }
 
@@ -88,32 +88,29 @@ st.markdown("""
         font-size: 3rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
-        background: linear-gradient(45deg, #ffffff, #e2e8f0, #f1f5f9);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #ffffff;
         position: relative;
         z-index: 1;
     }
 
     .subtitle {
         font-size: 1.2rem;
-        color: #bfdbfe;
+        color: #dbeafe;
         margin-bottom: 0;
         position: relative;
         z-index: 1;
     }
 
-    /* Card styling - Equal height and enhanced */
+    /* Card styling - Light theme with equal heights */
     .feature-card {
-        background: linear-gradient(135deg, var(--card-bg) 0%, #475569 100%);
+        background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg-light) 100%);
         border: 1px solid var(--border-color);
         border-radius: 12px;
         padding: 1.5rem;
         margin: 1rem 0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
-        min-height: 180px;
+        min-height: 200px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -128,18 +125,18 @@ st.markdown("""
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.03) 0%, transparent 50%);
         pointer-events: none;
     }
 
     .feature-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
         border-color: var(--accent-light);
     }
 
     .feature-card:hover::before {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, transparent 50%);
     }
 
     .card-title {
@@ -548,7 +545,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-uploaded_file = st.file_uploader("", type=["mp4", "mov", "avi", "mkv"], label_visibility="collapsed")
+uploaded_file = st.file_uploader("Upload Video File", type=["mp4", "mov", "avi", "mkv"], label_visibility="collapsed")
 
 if uploaded_file:
     # Progress tracking
