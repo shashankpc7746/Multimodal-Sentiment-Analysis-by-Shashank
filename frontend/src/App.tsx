@@ -4,6 +4,7 @@ import { ProgressStepper } from './components/ProgressStepper';
 import { FeatureCards } from './components/FeatureCards';
 import { SentimentResult } from './components/SentimentResult';
 import { HistoryList } from './components/HistoryList';
+import trisentiLogo from './assets/TriSenti logo.png';
 import { AnimatedBackground } from './components/AnimatedBackground';
 import { Footer } from './components/Footer';
 import { HowItWorks } from './components/HowItWorks';
@@ -125,13 +126,13 @@ export default function App() {
       <div className="relative z-10">
         {/* Header */}
         <header className="border-b border-white/10 backdrop-blur-sm bg-gray-900/50 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-8 py-6">
+          <div className="max-w-7xl mx-auto px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <img 
-                  src={logoImage} 
-                  alt="TriSenti AI Logo" 
-                  className="w-12 h-12 sm:w-14 sm:h-14 object-contain"
+                  src={trisentiLogo} 
+                  alt="TriSenti Logo" 
+                  className="w-12 h-12 rounded-lg border-2 border-white/20 shadow-md object-cover" 
                 />
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
