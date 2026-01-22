@@ -140,6 +140,8 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
               accept={acceptedTypes}
               onChange={handleFileSelect}
               className="hidden"
+              aria-label="Upload file"
+              placeholder="Choose a file to upload"
             />
             
             <AnimatePresence mode="wait">
@@ -218,6 +220,7 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
                       setUploadedFile(null);
                     }}
                     className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                    title="Remove uploaded file"
                   >
                     <X className="w-5 h-5" />
                   </button>
