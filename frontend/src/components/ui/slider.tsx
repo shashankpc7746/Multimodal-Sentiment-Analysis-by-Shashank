@@ -9,27 +9,26 @@ function Slider({
   className,
   defaultValue,
   value,
-  min = 0,
-  max = 100,
+  onValueChange,
+  min,
+  max,
+  step,
+  disabled,
+  orientation,
+  dir,
+  minStepsBetweenThumbs,
+  name,
+  children,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
-  const _values = React.useMemo(
-    () =>
-      Array.isArray(value)
-        ? value
-        : Array.isArray(defaultValue)
-          ? defaultValue
-          : [min, max],
-    [value, defaultValue, min, max],
-  );
-
-  // Ensure value is always a number[] for SliderPrimitive.Root
-  const sliderValue = Array.isArray(value) ? value : _values;
-
+}: any) {
+  // Ensure defaultValue is always a number[]
+  const sliderDefaultValue = defaultValue ?? [0];
+  const sliderValue = value;
+  const _values = sliderValue ?? sliderDefaultValue;
   return (
     <SliderPrimitive.Root
       data-slot="slider"
-      defaultValue={defaultValue}
+      defaultValue={sliderDefaultValue}
       value={sliderValue}
       min={min}
       max={max}
@@ -59,6 +58,7 @@ function Slider({
           className="border-primary bg-background ring-ring/50 block size-4 shrink-0 rounded-full border shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
         />
       ))}
+      {children}
     </SliderPrimitive.Root>
   );
 }
