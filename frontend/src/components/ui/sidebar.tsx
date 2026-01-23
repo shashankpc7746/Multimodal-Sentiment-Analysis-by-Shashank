@@ -131,6 +131,7 @@ function SidebarProvider({
       <TooltipProvider delayDuration={0}>
         <div
           data-slot="sidebar-wrapper"
+          // style warning suppressed: inline style required for dynamic width
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH,

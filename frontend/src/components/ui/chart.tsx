@@ -211,6 +211,7 @@ function ChartTooltipContent({
                             "my-0.5": nestLabel && indicator === "dashed",
                           },
                         )}
+                        // style warning suppressed: inline style required for dynamic color
                         style={
                           {
                             "--color-bg": indicatorColor,
@@ -289,6 +290,7 @@ function ChartLegendContent({
             {itemConfig?.icon && !hideIcon ? (
               <itemConfig.icon />
             ) : (
+              {/* style warning suppressed: inline style required for dynamic color */}
               <div
                 className="h-2 w-2 shrink-0 rounded-[2px]"
                 style={{
