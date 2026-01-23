@@ -9,7 +9,9 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "esnext",
-    "types": [],
+    "types": [
+      "vite/client"
+    ],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],

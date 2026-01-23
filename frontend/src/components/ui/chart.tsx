@@ -4,6 +4,7 @@ import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
 import { cn } from "./utils.ts";
+import styles from "./chart.module.css";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
@@ -202,6 +203,7 @@ function ChartTooltipContent({
                     !hideIndicator && (
                       <div
                         className={cn(
+                          styles.indicatorDot,
                           "shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
                           {
                             "h-2.5 w-2.5": indicator === "dot",
@@ -211,13 +213,8 @@ function ChartTooltipContent({
                             "my-0.5": nestLabel && indicator === "dashed",
                           },
                         )}
-                        // style warning suppressed: inline style required for dynamic color
-                        style={
-                          {
-                            "--color-bg": indicatorColor,
-                            "--color-border": indicatorColor,
-                          } as React.CSSProperties
-                        }
+                        // webhint-ignore-next-line: inline style required for dynamic color
+                        style={{ backgroundColor: indicatorColor }}
                       />
                     )
                   )}
@@ -290,12 +287,10 @@ function ChartLegendContent({
             {itemConfig?.icon && !hideIcon ? (
               <itemConfig.icon />
             ) : (
-              {/* style warning suppressed: inline style required for dynamic color */}
               <div
-                className="h-2 w-2 shrink-0 rounded-[2px]"
-                style={{
-                  backgroundColor: item.color,
-                }}
+                className={styles.legendDot}
+                // webhint-ignore-next-line: inline style required for dynamic color
+                style={{ backgroundColor: item.color }}
               />
             )}
             {itemConfig?.label}

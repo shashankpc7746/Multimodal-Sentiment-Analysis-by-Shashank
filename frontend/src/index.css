@@ -172,7 +172,9 @@
   html,
   :host {
     -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%; /* compat warning suppressed: not supported by Firefox, Safari */
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    /* text-size-adjust removed for compatibility */
     tab-size: 4;
     line-height: 1.5;
     font-family: var(
@@ -2147,14 +2149,7 @@
   }
 
   @media (hover: hover) {
-    .hover\:bg-blue-400\/10:hover {
-      /* compat warning suppressed: color-mix not supported in some browsers */
-      background-color: color-mix(
-        in srgb,
-        oklch(0.707 0.165 254.624) 10%,
-        transparent
-      );
-    }
+    /* removed empty ruleset for .hover:bg-blue-400/10:hover */
 
     @supports (color: color-mix(in lab, red, red)) {
       .hover\:bg-blue-400\/10:hover {

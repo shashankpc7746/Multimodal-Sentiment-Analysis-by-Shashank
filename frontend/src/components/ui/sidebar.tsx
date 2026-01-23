@@ -7,6 +7,7 @@ import { PanelLeftIcon } from "lucide-react";
 
 import { useIsMobile } from "./use-mobile.ts";
 import { cn } from "./utils.ts";
+import styles from "./sidebar.module.css";
 import { Button } from "./button.tsx";
 import { Input } from "./input.tsx";
 import { Separator } from "./separator.tsx";
@@ -131,15 +132,8 @@ function SidebarProvider({
       <TooltipProvider delayDuration={0}>
         <div
           data-slot="sidebar-wrapper"
-          // style warning suppressed: inline style required for dynamic width
-          style={
-            {
-              "--sidebar-width": SIDEBAR_WIDTH,
-              "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-              ...style,
-            } as React.CSSProperties
-          }
           className={cn(
+            styles.sidebarWrapper,
             "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full",
             className,
           )}
