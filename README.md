@@ -150,4 +150,3 @@ Key F1-Scores on the test set:
 * Negative Class: 0.71
 * Neutral Class: 0.44
   
-(For a detailed breakdown of performance, including the confusion matrix, a discussion of challenges faced, and potential improvements, please refer to the accompanying project report: Report.pdf.)
