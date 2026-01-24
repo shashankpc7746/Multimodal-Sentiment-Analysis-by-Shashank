@@ -1,5 +1,5 @@
 # Multimodal Sentiment Classifier
-
+     
 ## 🎬 Project Overview
 
 This project implements a Multimodal Sentiment Classifier that analyzes short video clips (5-15 seconds) to predict sentiment as **Positive**, **Negative**, or **Neutral**. It leverages three distinct modalities:
@@ -150,3 +150,4 @@ Key F1-Scores on the test set:
 * Negative Class: 0.71
 * Neutral Class: 0.44
   
+
