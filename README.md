@@ -1,7 +1,7 @@
 # Multimodal Sentiment Classifier
      
 ## 🎬 Project Overview
-
+   
 This project implements a Multimodal Sentiment Classifier that analyzes short video clips (5-15 seconds) to predict sentiment as **Positive**, **Negative**, or **Neutral**. It leverages three distinct modalities:
 * **Video:** Visual features extracted from video frames.
 * **Audio:** Acoustic features (MFCCs) extracted from the audio track.

@@ -9,6 +9,7 @@ import { AnimatedBackground } from './components/AnimatedBackground';
 import { Footer } from './components/Footer';
 import { HowItWorks } from './components/HowItWorks';
 import { UseCases } from './components/UseCases';
+import { ResultAfterTick } from './components/ResultAfterTick';
 import logoImage from 'figma:asset/3f3e9a7ff4d19c90aab4fecc28a836cb0f8ea242.png';
 
 export interface Analysis {
@@ -191,21 +192,7 @@ export default function App() {
               <ResultAfterTick currentAnalysis={currentAnalysis} />
             </section>
           )}
-// Helper component to delay result until tick mark is shown
-function ResultAfterTick({ currentAnalysis }) {
-  const [showResult, setShowResult] = React.useState(false);
-  React.useEffect(() => {
-    if (currentAnalysis.currentStep === 6 && currentAnalysis.sentiment) {
-      // Wait for tick animation (e.g., 700ms)
-      const timeout = setTimeout(() => setShowResult(true), 700);
-      return () => clearTimeout(timeout);
-    } else {
-      setShowResult(false);
-    }
-  }, [currentAnalysis.currentStep, currentAnalysis.sentiment]);
-  if (!showResult) return null;
-  return <SentimentResult sentiment={currentAnalysis.sentiment} />;
-}
+
 
           {/* How It Works */}
           <section id="how-it-works">
