@@ -185,11 +185,10 @@ export default function App() {
                     </p>
                   </div>
                 </div>
-                
                 <ProgressStepper currentStep={currentAnalysis.currentStep} />
               </div>
-              
-              {currentAnalysis.status === 'completed' && currentAnalysis.sentiment && (
+              {/* Only show result after last step (Sentiment Prediction) is reached */}
+              {currentAnalysis.currentStep === 6 && currentAnalysis.sentiment && (
                 <SentimentResult sentiment={currentAnalysis.sentiment} />
               )}
             </section>

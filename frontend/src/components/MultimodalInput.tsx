@@ -199,7 +199,7 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
                   >
                     <CheckCircle className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                   </motion.div>
-                  
+
                   <div className="flex-1 text-left w-full sm:w-auto">
                     <div className="flex items-center gap-2 mb-1 justify-center sm:justify-start">
                       {activeMode === 'video' ? (
@@ -212,8 +212,24 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
                     <p className="text-gray-400 text-sm text-center sm:text-left">
                       {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
                     </p>
+
+                    {/* Video preview for uploaded video */}
+                    {activeMode === 'video' && uploadedFile && (
+                      <div className="mt-3 flex justify-center">
+                        <video
+                          src={URL.createObjectURL(uploadedFile)}
+                          controls
+                          width={320}
+                          height={180}
+                          className="rounded-lg border border-white/10 shadow-md bg-black"
+                          style={{ maxWidth: 320, maxHeight: 180 }}
+                        >
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                    )}
                   </div>
-                  
+
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
