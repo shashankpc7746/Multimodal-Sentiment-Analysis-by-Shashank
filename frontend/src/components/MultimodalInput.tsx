@@ -175,29 +175,6 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
           />
         </div>
       ) : null}
-                    }}
-                    className="inline-block"
-                  >
-                    <div className={`w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-gradient-to-br ${modes.find(m => m.id === activeMode)?.color} rounded-2xl flex items-center justify-center shadow-lg`}>
-                      <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
-                    </div>
-                  </motion.div>
-                  
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-bold mb-2">
-                      {isDragging ? `Drop your ${activeMode} here` : `Upload a ${activeMode} file`}
-                    </h3>
-                    <p className="text-gray-400 text-sm sm:text-base">
-                      Drag and drop or click to browse
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-2">
-                      Supported formats: {modes.find(m => m.id === activeMode)?.formats}
-                    </p>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="upload-success"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
