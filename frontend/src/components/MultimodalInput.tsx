@@ -118,19 +118,9 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
                       {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
                     </p>
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setUploadedFile(null);
-                    }}
-                    className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                    title="Remove uploaded file"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
                 </motion.div>
               )}
-            </AnimatePresence>
+              </AnimatePresence>
           </div>
         ) : (
           <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-4 sm:p-6 space-y-4">
@@ -161,71 +151,6 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
         )}
       </motion.div>
 
-      {/* Preview Section (below input area) */}
-      {(uploadedFile && (activeMode === 'video' || activeMode === 'audio')) || (activeMode === 'text' && textInput.trim()) ? (
-        <div className="mt-6 flex justify-center">
-          <InputPreview
-            type={activeMode}
-            file={activeMode !== 'text' ? uploadedFile : undefined}
-            text={activeMode === 'text' ? textInput : undefined}
-          />
-        </div>
-      ) : null}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="flex flex-col sm:flex-row items-center gap-4"
-                >
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                    className="w-14 h-14 sm:w-16 sm:h-16 bg-green-500 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/50"
-                  >
-                    <CheckCircle className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
-                  </motion.div>
-
-                  <div className="flex-1 text-left w-full sm:w-auto">
-                    <div className="flex items-center gap-2 mb-1 justify-center sm:justify-start">
-                      {activeMode === 'video' ? (
-                        <Film className="w-5 h-5 text-gray-400" />
-                      ) : (
-                        <Music className="w-5 h-5 text-gray-400" />
-                      )}
-                      <h4 className="font-semibold text-base sm:text-lg truncate max-w-[200px] sm:max-w-none">{uploadedFile.name}</h4>
-                    </div>
-                    <p className="text-gray-400 text-sm text-center sm:text-left">
-                      {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
-                    </p>
-
-                    {/* Video preview for uploaded video */}
-                    {activeMode === 'video' && uploadedFile && (
-                      <div className="mt-3 flex justify-center">
-                        <video
-                          src={URL.createObjectURL(uploadedFile)}
-                          controls
-                          width={320}
-                          height={180}
-                          className="rounded-lg border border-white/10 shadow-md bg-black"
-                          style={{ maxWidth: 320, maxHeight: 180 }}
-                        >
-                          Your browser does not support the video tag.
-                        </video>
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setUploadedFile(null);
-                    }}
-                    className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                    title="Remove uploaded file"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </motion.div>
               )}
             </AnimatePresence>
           </div>
