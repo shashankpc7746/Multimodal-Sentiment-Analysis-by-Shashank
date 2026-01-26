@@ -96,10 +96,6 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
               ) : (
                 <motion.div
                   key="upload-success"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="flex flex-col sm:flex-row items-center gap-4"
                 >
                   <motion.div
                     initial={{ scale: 0 }}
