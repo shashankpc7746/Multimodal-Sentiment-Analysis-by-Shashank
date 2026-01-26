@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './InputPreview.module.css';
 
 interface InputPreviewProps {
   type: 'video' | 'audio' | 'text';
@@ -20,12 +21,11 @@ export function InputPreview({ type, file, text }: InputPreviewProps) {
           style={{ maxWidth: 320, maxHeight: 180 }}
         >
           Your browser does not support the video tag.
-        </video>
-      </div>
-    );
-  }
-  if (type === 'audio' && file) {
-    return (
+        <video
+          controls
+          className={`rounded-lg shadow-md max-w-full h-48 sm:h-64 mx-auto ${styles['input-preview-video-bg']}`}
+          src={URL.createObjectURL(file)}
+        />
       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center shadow-lg animate-fade-in">
         <h4 className="font-semibold text-lg mb-2 text-purple-400">Audio Preview</h4>
         <audio

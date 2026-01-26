@@ -4,6 +4,7 @@ import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
 import { cn } from "./utils.ts";
+import styles from "../InputPreview.module.css"; // Importing the new CSS module
 import styles from "./chart.module.css";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
@@ -36,16 +37,7 @@ function useChart() {
 }
 
 function ChartContainer({
-  id,
-  className,
-  children,
-  config,
-  ...props
-}: React.ComponentProps<"div"> & {
-  config: ChartConfig;
-  children: React.ComponentProps<
-    typeof RechartsPrimitive.ResponsiveContainer
-  >["children"];
+                      <div className="chart-absolute-overlay">
 }) {
   const uniqueId = React.useId();
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
@@ -196,16 +188,7 @@ function ChartTooltipContent({
               {formatter && item?.value !== undefined && item.name ? (
                 formatter(item.value, item.name, item, index, item.payload)
               ) : (
-                <>
-                  {itemConfig?.icon ? (
-                    <itemConfig.icon />
-                  ) : (
-                    !hideIndicator && (
-                      <div
-                        className={cn(
-                          styles.indicatorDot,
-                          "shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
-                          {
+                <div className="chart-absolute-overlay">
                             "h-2.5 w-2.5": indicator === "dot",
                             "w-1": indicator === "line",
                             "w-0 border-[1.5px] border-dashed bg-transparent":
