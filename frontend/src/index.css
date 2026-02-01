@@ -171,11 +171,9 @@
 
   html,
   :host {
+    /* webhint-disable-next-line compat-api/css */
     -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-    -webkit-text-size-adjust: 100%;
-    -webkit-text-size-adjust: 100%;
-    /* text-size-adjust removed for compatibility */
+    /* text-size-adjust removed for browser compatibility */
     tab-size: 4;
     line-height: 1.5;
     font-family: var(

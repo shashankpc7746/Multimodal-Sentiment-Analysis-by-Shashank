@@ -13,19 +13,18 @@ export function InputPreview({ type, file, text }: InputPreviewProps) {
       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center shadow-lg animate-fade-in">
         <h4 className="font-semibold text-lg mb-2 text-blue-400">Video Preview</h4>
         <video
-          src={URL.createObjectURL(file)}
-          controls
-          width={320}
-          height={180}
-          className="rounded-lg border border-white/10 shadow-md bg-black"
-          style={{ maxWidth: 320, maxHeight: 180 }}
-        >
-          Your browser does not support the video tag.
-        <video
           controls
           className={`rounded-lg shadow-md max-w-full h-48 sm:h-64 mx-auto ${styles['input-preview-video-bg']}`}
           src={URL.createObjectURL(file)}
-        />
+        >
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    );
+  }
+
+  if (type === 'audio' && file) {
+    return (
       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center shadow-lg animate-fade-in">
         <h4 className="font-semibold text-lg mb-2 text-purple-400">Audio Preview</h4>
         <audio
@@ -38,6 +37,7 @@ export function InputPreview({ type, file, text }: InputPreviewProps) {
       </div>
     );
   }
+
   if (type === 'text' && text) {
     return (
       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center shadow-lg animate-fade-in">
@@ -48,5 +48,6 @@ export function InputPreview({ type, file, text }: InputPreviewProps) {
       </div>
     );
   }
+
   return null;
 }

@@ -27,6 +27,7 @@ export interface Analysis {
       audio: { emotion: string; score: number };
       text: { emotion: string; score: number };
     };
+    transcript?: string; // Add transcript for video/audio analysis
   };
 }
 
@@ -59,7 +60,7 @@ export default function App() {
   };
 
   const simulateAnalysis = (analysis: Analysis) => {
-    const steps = [0, 1, 2, 3, 4, 5];
+    const steps = [0, 1, 2, 3]; // Steps: 0=start, 1=extraction, 2=recognition, 3=features
     let currentStepIndex = 0;
 
     const interval = setInterval(() => {
@@ -69,48 +70,64 @@ export default function App() {
         setCurrentAnalysis(prev => prev ? { ...prev, currentStep: currentStepIndex } : null);
       }
       
-      if (currentStepIndex === steps.length) {
-        clearInterval(interval);
-        
-        // Generate mock sentiment results with variation based on type
-        const sentimentOptions = ['Positive', 'Negative', 'Neutral'];
-        const emotionOptions = {
-          positive: ['Happy', 'Joyful', 'Excited', 'Content'],
-          negative: ['Sad', 'Angry', 'Frustrated', 'Disappointed'],
-          neutral: ['Calm', 'Neutral', 'Thoughtful', 'Indifferent'],
-        };
-        
-        const randomSentiment = sentimentOptions[Math.floor(Math.random() * sentimentOptions.length)];
-        const emotionSet = randomSentiment === 'Positive' ? emotionOptions.positive 
-          : randomSentiment === 'Negative' ? emotionOptions.negative 
-          : emotionOptions.neutral;
-        
-        const completedAnalysis: Analysis = {
-          ...analysis,
-          status: 'completed',
-          currentStep: 6,
-          sentiment: {
-            label: randomSentiment,
-            confidence: 0.75 + Math.random() * 0.2,
-            emotions: {
-              video: { 
-                emotion: emotionSet[Math.floor(Math.random() * emotionSet.length)], 
-                score: 0.7 + Math.random() * 0.25 
+      // Step 4 is "Sentiment Prediction" - this should take longer and show result only after completion
+      if (currentStepIndex === 4) {
+        // Set to step 4 (in progress) and wait longer for prediction
+        setTimeout(() => {
+          clearInterval(interval);
+          
+          // Generate mock sentiment results with more realistic variation
+          const sentimentOptions = ['Positive', 'Negative', 'Neutral'];
+          const emotionOptions = {
+            positive: ['Happy', 'Joyful', 'Excited', 'Content'],
+            negative: ['Sad', 'Angry', 'Frustrated', 'Disappointed'],
+            neutral: ['Calm', 'Neutral', 'Thoughtful', 'Indifferent'],
+          };
+          
+          // More varied sentiment selection (not just random)
+          const rand = Math.random();
+          const randomSentiment = rand < 0.4 ? 'Positive' : rand < 0.7 ? 'Negative' : 'Neutral';
+          const emotionSet = randomSentiment === 'Positive' ? emotionOptions.positive 
+            : randomSentiment === 'Negative' ? emotionOptions.negative 
+            : emotionOptions.neutral;
+          
+          // Generate mock transcript for video/audio
+          const mockTranscripts = {
+            positive: "This is absolutely amazing! I'm so happy with the results. Everything turned out better than I expected. This is truly wonderful and I couldn't be more pleased.",
+            negative: "I'm really disappointed with this outcome. Nothing seems to be working as intended. This is frustrating and I'm not satisfied at all.",
+            neutral: "This appears to be functioning as expected. The results are within normal parameters. Everything seems to be operating according to standard procedures."
+          };
+          
+          const completedAnalysis: Analysis = {
+            ...analysis,
+            status: 'completed',
+            currentStep: 4, // Mark step 4 as complete
+            sentiment: {
+              label: randomSentiment,
+              confidence: 0.82 + Math.random() * 0.15,
+              emotions: {
+                video: { 
+                  emotion: emotionSet[Math.floor(Math.random() * emotionSet.length)], 
+                  score: 0.75 + Math.random() * 0.2 
+                },
+                audio: { 
+                  emotion: emotionSet[Math.floor(Math.random() * emotionSet.length)], 
+                  score: 0.75 + Math.random() * 0.2 
+                },
+                text: { 
+                  emotion: emotionSet[Math.floor(Math.random() * emotionSet.length)], 
+                  score: 0.75 + Math.random() * 0.2 
+                },
               },
-              audio: { 
-                emotion: emotionSet[Math.floor(Math.random() * emotionSet.length)], 
-                score: 0.7 + Math.random() * 0.25 
-              },
-              text: { 
-                emotion: emotionSet[Math.floor(Math.random() * emotionSet.length)], 
-                score: 0.7 + Math.random() * 0.25 
-              },
+              transcript: analysis.type !== 'text' 
+                ? mockTranscripts[randomSentiment.toLowerCase() as keyof typeof mockTranscripts]
+                : undefined
             },
-          },
-        };
-        
-        setCurrentAnalysis(completedAnalysis);
-        setAnalysisHistory(prev => [completedAnalysis, ...prev]);
+          };
+          
+          setCurrentAnalysis(completedAnalysis);
+          setAnalysisHistory(prev => [completedAnalysis, ...prev]);
+        }, 2500); // Give more time for sentiment prediction step
       }
     }, 1500);
   };

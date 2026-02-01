@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Film, Music, Type, CheckCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { InputPreview } from './InputPreview';
+import { InputPreview } from './InputPreview.js';
 
 interface MultimodalInputProps {
   onAnalyze: (data: { type: 'video' | 'audio' | 'text'; content: File | string }) => void;
@@ -24,6 +24,68 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) setUploadedFile(file);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setUploadedFile(file);
+  };
+
+  const handleAnalyze = () => {
+    if (activeMode === 'text' && textInput.trim()) {
+      onAnalyze({ type: 'text', content: textInput.trim() });
+    } else if (uploadedFile) {
+      onAnalyze({ type: activeMode, content: uploadedFile });
+    }
+  };
+
+  const canAnalyze = (activeMode === 'text' && textInput.trim().length >= 10) || 
+                     (activeMode !== 'text' && uploadedFile !== null);
+
+  const acceptedTypes = activeMode === 'video' 
+    ? 'video/*' 
+    : activeMode === 'audio' 
+    ? 'audio/*' 
+    : '';
+
+  return (
+    <div className="space-y-8">
+      {/* Mode Selector */}
+      <div className="flex gap-4 justify-center px-4">
+        {modes.map((mode) => (
+          <motion.button
+            key={mode.id}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setActiveMode(mode.id);
+              setUploadedFile(null);
+              setTextInput('');
+            }}
+            className={`flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold transition-all ${
+              activeMode === mode.id
+                ? `bg-gradient-to-br ${mode.color} text-white shadow-lg`
+                : 'bg-white/5 text-gray-400 hover:bg-white/10'
+            }`}
+          >
+            <mode.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-sm sm:text-base">{mode.label}</span>
+          </motion.button>
+        ))}
+      </div>
+
       {/* Input Area */}
       <motion.div
         key={activeMode}
@@ -96,6 +158,10 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
               ) : (
                 <motion.div
                   key="upload-success"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="flex flex-col sm:flex-row items-center gap-4"
                 >
                   <motion.div
                     initial={{ scale: 0 }}
@@ -118,9 +184,19 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
                       {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
                     </p>
                   </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setUploadedFile(null);
+                    }}
+                    className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                    title="Remove uploaded file"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </motion.div>
               )}
-              </AnimatePresence>
+            </AnimatePresence>
           </div>
         ) : (
           <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-4 sm:p-6 space-y-4">
@@ -151,39 +227,16 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
         )}
       </motion.div>
 
-              )}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-4 sm:p-6 space-y-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Type className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg sm:text-xl font-bold">Enter Text for Analysis</h3>
-                <p className="text-xs sm:text-sm text-gray-400">Type or paste your text below</p>
-              </div>
-            </div>
-            
-            <textarea
-              value={textInput}
-              onChange={(e) => setTextInput(e.target.value)}
-              placeholder="Enter your text here... (e.g., 'I'm so happy today! This is the best day ever!' or 'I'm feeling really disappointed about the results.')"
-              className="w-full h-40 sm:h-48 px-3 sm:px-4 py-2 sm:py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
-            />
-            
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">
-                {textInput.length} characters
-              </span>
-              <span className="text-gray-500">
-                Minimum 10 characters recommended
-              </span>
-            </div>
-          </div>
-        )}
-      </motion.div>
+      {/* Preview Section (below input area) */}
+      {((uploadedFile && (activeMode === 'video' || activeMode === 'audio')) || (activeMode === 'text' && textInput.trim())) && (
+        <div className="mt-6 flex justify-center">
+          <InputPreview
+            type={activeMode}
+            file={activeMode !== 'text' ? (uploadedFile || null) : null}
+            text={activeMode === 'text' ? textInput : undefined}
+          />
+        </div>
+      )}
 
       {/* Analyze Button */}
       <motion.button

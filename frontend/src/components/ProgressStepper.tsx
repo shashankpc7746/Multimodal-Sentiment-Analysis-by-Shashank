@@ -8,12 +8,10 @@ interface ProgressStepperProps {
 
 export function ProgressStepper({ currentStep }: ProgressStepperProps) {
   const steps = [
-    { id: 1, label: 'Video Upload', icon: '📤' },
-    { id: 2, label: 'Video Processing', icon: '🎬' },
-    { id: 3, label: 'Audio Extraction', icon: '🔊' },
-    { id: 4, label: 'Speech Recognition', icon: '🎤' },
-    { id: 5, label: 'Feature Extraction', icon: '🧬' },
-    { id: 6, label: 'Sentiment Prediction', icon: '🎯' },
+    { id: 1, label: 'Audio Extraction', icon: '🔊' },
+    { id: 2, label: 'Speech Recognition', icon: '🎤' },
+    { id: 3, label: 'Feature Extraction', icon: '🧬' },
+    { id: 4, label: 'Sentiment Prediction', icon: '🎯' },
   ];
 
   return (

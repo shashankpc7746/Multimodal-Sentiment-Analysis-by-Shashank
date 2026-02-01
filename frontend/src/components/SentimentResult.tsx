@@ -11,6 +11,7 @@ interface SentimentResultProps {
       audio: { emotion: string; score: number };
       text: { emotion: string; score: number };
     };
+    transcript?: string; // Add transcript support
   };
 }
 
@@ -144,6 +145,18 @@ export function SentimentResult({ sentiment }: SentimentResultProps) {
           ))}
         </div>
 
+        {/* Transcript Section for Video/Audio */}
+        {sentiment.transcript && (
+          <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-4">
+            <h4 className="font-semibold text-base sm:text-lg text-white mb-3 flex items-center gap-2">
+              <span>📝</span> Extracted Text/Transcript
+            </h4>
+            <div className="bg-black/20 rounded-lg p-4 text-sm sm:text-base text-gray-300 leading-relaxed">
+              {sentiment.transcript}
+            </div>
+          </div>
+        )}
+
         {/* Technical Details Toggle */}
         <motion.button
           onClick={() => setShowDetails(!showDetails)}
@@ -174,7 +187,9 @@ export function SentimentResult({ sentiment }: SentimentResultProps) {
               <p><strong className="text-gray-300">Processing Time:</strong> 14.2 seconds</p>
               <p><strong className="text-gray-300">Frame Rate:</strong> 30 fps analyzed</p>
               <p><strong className="text-gray-300">Audio Sample Rate:</strong> 16 kHz</p>
-              <p><strong className="text-gray-300">Transcript Length:</strong> 247 words</p>
+              {sentiment.transcript && (
+                <p><strong className="text-gray-300">Transcript Length:</strong> {sentiment.transcript.split(' ').length} words</p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
