@@ -78,6 +78,23 @@ export function SentimentResult({ sentiment }: SentimentResultProps) {
 
       {/* Confidence Meter */}
       <div className="p-4 sm:p-6">
+        {/* Transcript Section for Video/Audio - Moved to top for prominence */}
+        {sentiment.transcript && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mb-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-4"
+          >
+            <h4 className="font-semibold text-base sm:text-lg text-white mb-3 flex items-center gap-2">
+              <span>💬</span> Extracted Text from Video
+            </h4>
+            <div className="bg-black/30 rounded-lg p-4 text-sm sm:text-base text-gray-200 leading-relaxed italic border border-white/10">
+              "{sentiment.transcript}"
+            </div>
+          </motion.div>
+        )}
+
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-semibold text-gray-300">Overall Confidence</span>
@@ -144,18 +161,6 @@ export function SentimentResult({ sentiment }: SentimentResultProps) {
             </motion.div>
           ))}
         </div>
-
-        {/* Transcript Section for Video/Audio */}
-        {sentiment.transcript && (
-          <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-4">
-            <h4 className="font-semibold text-base sm:text-lg text-white mb-3 flex items-center gap-2">
-              <span>📝</span> Extracted Text/Transcript
-            </h4>
-            <div className="bg-black/20 rounded-lg p-4 text-sm sm:text-base text-gray-300 leading-relaxed">
-              {sentiment.transcript}
-            </div>
-          </div>
-        )}
 
         {/* Technical Details Toggle */}
         <motion.button

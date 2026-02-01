@@ -35,7 +35,7 @@ export default function App() {
   const [currentAnalysis, setCurrentAnalysis] = useState<Analysis | null>(null);
   const [analysisHistory, setAnalysisHistory] = useState<Analysis[]>([]);
 
-  const handleAnalyze = (data: { type: 'video' | 'audio' | 'text'; content: File | string }) => {
+  const handleAnalyze = async (data: { type: 'video' | 'audio' | 'text'; content: File | string }) => {
     const newAnalysis: Analysis = {
       id: Date.now().toString(),
       filename: data.type === 'text' 
@@ -55,27 +55,119 @@ export default function App() {
       progressSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
     
-    // Simulate processing steps
-    simulateAnalysis(newAnalysis);
+    // Call real backend API instead of simulation
+    await analyzeWithBackend(data.content, data.type, newAnalysis);
+  };
+
+  const analyzeWithBackend = async (fileData: File | string, type: 'video' | 'audio' | 'text', analysis: Analysis) => {
+    const API_URL = 'http://localhost:8000';
+    
+    // Animate progress steps 1-3 while backend processes
+    for (let step = 1; step <= 3; step++) {
+      await new Promise(resolve => setTimeout(resolve, step === 1 ? 500 : 1000));
+      setCurrentAnalysis(prev => prev ? { ...prev, currentStep: step } : null);
+    }
+    
+    // Set step 4 as in progress
+    setCurrentAnalysis(prev => prev ? { ...prev, currentStep: 4 } : null);
+    
+    try {
+      let response;
+      
+      if (type === 'text') {
+        // Text-only analysis
+        response = await fetch(`${API_URL}/api/analyze-text?text=${encodeURIComponent(fileData as string)}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      } else {
+        // Video/Audio analysis
+        const formData = new FormData();
+        formData.append('file', fileData as File);
+        
+        response = await fetch(`${API_URL}/api/analyze`, {
+          method: 'POST',
+          body: formData,
+        });
+      }
+      
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Analysis failed' }));
+        throw new Error(error.detail || 'Analysis failed');
+      }
+      
+      const result = await response.json();
+      
+      // Map backend response to frontend format
+      const emotionOptions = {
+        Positive: ['Happy', 'Joyful', 'Excited', 'Content'],
+        Negative: ['Sad', 'Angry', 'Frustrated', 'Disappointed'],
+        Neutral: ['Calm', 'Neutral', 'Thoughtful', 'Indifferent'],
+      };
+      
+      const sentimentKey = result.sentiment as keyof typeof emotionOptions;
+      const emotions = emotionOptions[sentimentKey] || emotionOptions.Neutral;
+      
+      const completedAnalysis: Analysis = {
+        ...analysis,
+        status: 'completed',
+        currentStep: 5, // Mark as completed
+        sentiment: {
+          label: result.sentiment,
+          confidence: result.confidence,
+          transcript: result.transcript !== "No speech detected" ? result.transcript : undefined,
+          emotions: {
+            video: {
+              emotion: emotions[Math.floor(Math.random() * emotions.length)],
+              score: result.breakdown.video
+            },
+            audio: {
+              emotion: emotions[Math.floor(Math.random() * emotions.length)],
+              score: result.breakdown.audio
+            },
+            text: {
+              emotion: emotions[Math.floor(Math.random() * emotions.length)],
+              score: result.breakdown.text
+            },
+          },
+        },
+      };
+      
+      setCurrentAnalysis(completedAnalysis);
+      setAnalysisHistory(prev => [completedAnalysis, ...prev]);
+      
+    } catch (error) {
+      console.error('Analysis error:', error);
+      setCurrentAnalysis(prev => prev ? {
+        ...prev,
+        status: 'failed',
+        currentStep: 4,
+      } : null);
+    }
   };
 
   const simulateAnalysis = (analysis: Analysis) => {
-    const steps = [0, 1, 2, 3]; // Steps: 0=start, 1=extraction, 2=recognition, 3=features
     let currentStepIndex = 0;
 
     const interval = setInterval(() => {
       currentStepIndex++;
       
-      if (currentStepIndex <= steps.length) {
+      // Steps 1-3 progress normally
+      if (currentStepIndex <= 3) {
         setCurrentAnalysis(prev => prev ? { ...prev, currentStep: currentStepIndex } : null);
       }
       
-      // Step 4 is "Sentiment Prediction" - this should take longer and show result only after completion
+      // When reaching step 4 (Sentiment Prediction), clear interval and handle separately
       if (currentStepIndex === 4) {
-        // Set to step 4 (in progress) and wait longer for prediction
+        clearInterval(interval);
+        
+        // Set to step 4 (in progress)
+        setCurrentAnalysis(prev => prev ? { ...prev, currentStep: 4 } : null);
+        
+        // Wait for prediction to "complete"
         setTimeout(() => {
-          clearInterval(interval);
-          
           // Generate mock sentiment results with more realistic variation
           const sentimentOptions = ['Positive', 'Negative', 'Neutral'];
           const emotionOptions = {
@@ -84,24 +176,20 @@ export default function App() {
             neutral: ['Calm', 'Neutral', 'Thoughtful', 'Indifferent'],
           };
           
-          // More varied sentiment selection (not just random)
+          // More varied sentiment selection
           const rand = Math.random();
           const randomSentiment = rand < 0.4 ? 'Positive' : rand < 0.7 ? 'Negative' : 'Neutral';
           const emotionSet = randomSentiment === 'Positive' ? emotionOptions.positive 
             : randomSentiment === 'Negative' ? emotionOptions.negative 
             : emotionOptions.neutral;
           
-          // Generate mock transcript for video/audio
-          const mockTranscripts = {
-            positive: "This is absolutely amazing! I'm so happy with the results. Everything turned out better than I expected. This is truly wonderful and I couldn't be more pleased.",
-            negative: "I'm really disappointed with this outcome. Nothing seems to be working as intended. This is frustrating and I'm not satisfied at all.",
-            neutral: "This appears to be functioning as expected. The results are within normal parameters. Everything seems to be operating according to standard procedures."
-          };
+          // Note: Mock transcripts removed - real transcription will be done by backend
+          // Currently showing demo UI only without actual speech recognition
           
           const completedAnalysis: Analysis = {
             ...analysis,
             status: 'completed',
-            currentStep: 4, // Mark step 4 as complete
+            currentStep: 5, // Mark as completed (step 5 means step 4 is done with checkmark)
             sentiment: {
               label: randomSentiment,
               confidence: 0.82 + Math.random() * 0.15,
@@ -119,15 +207,14 @@ export default function App() {
                   score: 0.75 + Math.random() * 0.2 
                 },
               },
-              transcript: analysis.type !== 'text' 
-                ? mockTranscripts[randomSentiment.toLowerCase() as keyof typeof mockTranscripts]
-                : undefined
+              // Transcript removed - will be provided by backend integration
+              transcript: undefined
             },
           };
           
           setCurrentAnalysis(completedAnalysis);
           setAnalysisHistory(prev => [completedAnalysis, ...prev]);
-        }, 2500); // Give more time for sentiment prediction step
+        }, 2500); // Wait 2.5s for "prediction" to complete
       }
     }, 1500);
   };

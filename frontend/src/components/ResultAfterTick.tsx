@@ -10,10 +10,10 @@ export function ResultAfterTick({ currentAnalysis }: ResultAfterTickProps) {
   const [showResult, setShowResult] = React.useState(false);
   
   React.useEffect(() => {
-    // Only show result after step 4 (Sentiment Prediction) is completed AND sentiment data exists
-    if (currentAnalysis.currentStep === 4 && currentAnalysis.sentiment && currentAnalysis.status === 'completed') {
-      // Wait for tick animation to complete (1200ms for animation + delay)
-      const timeout = setTimeout(() => setShowResult(true), 1200);
+    // Only show result after step 4 completes (currentStep becomes 5) AND sentiment data exists
+    if (currentAnalysis.currentStep >= 5 && currentAnalysis.sentiment && currentAnalysis.status === 'completed') {
+      // Wait for tick animation to complete (800ms for smooth transition)
+      const timeout = setTimeout(() => setShowResult(true), 800);
       return () => clearTimeout(timeout);
     } else {
       setShowResult(false);
