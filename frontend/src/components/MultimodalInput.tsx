@@ -233,7 +233,7 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
           <InputPreview
             type={activeMode}
             file={activeMode !== 'text' ? (uploadedFile || null) : null}
-            text={activeMode === 'text' ? textInput : undefined}
+            text={activeMode === 'text' ? textInput : ''}
           />
         </div>
       )}

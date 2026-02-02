@@ -18,8 +18,8 @@ from fastapi.responses import JSONResponse
 import tempfile
 import numpy as np
 import pickle
-from tensorflow.keras.models import load_model
-import tensorflow as tf
+from tensorflow.keras.models import load_model  # type: ignore
+import tensorflow as tf  # type: ignore
 
 # Import preprocessing utilities
 from preprocessing.extract_all_video_features import extract_all_video_features
