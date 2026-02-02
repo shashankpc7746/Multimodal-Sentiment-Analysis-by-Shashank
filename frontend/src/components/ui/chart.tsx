@@ -4,8 +4,6 @@ import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
 import { cn } from "./utils.ts";
-import styles from "../InputPreview.module.css"; // Importing the new CSS module
-import styles from "./chart.module.css";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
@@ -37,7 +35,14 @@ function useChart() {
 }
 
 function ChartContainer({
-                      <div className="chart-absolute-overlay">
+  id,
+  className,
+  children,
+  config,
+  ...props
+}: React.ComponentProps<"div"> & {
+  config: ChartConfig;
+  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
 }) {
   const uniqueId = React.useId();
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
@@ -188,7 +193,15 @@ function ChartTooltipContent({
               {formatter && item?.value !== undefined && item.name ? (
                 formatter(item.value, item.name, item, index, item.payload)
               ) : (
-                <div className="chart-absolute-overlay">
+                <>
+                  {itemConfig?.icon ? (
+                    <itemConfig.icon />
+                  ) : (
+                    !hideIndicator && (
+                      <div
+                        className={cn(
+                          "shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]",
+                          {
                             "h-2.5 w-2.5": indicator === "dot",
                             "w-1": indicator === "line",
                             "w-0 border-[1.5px] border-dashed bg-transparent":
@@ -196,8 +209,12 @@ function ChartTooltipContent({
                             "my-0.5": nestLabel && indicator === "dashed",
                           },
                         )}
-                        // webhint-ignore-next-line: inline style required for dynamic color
-                        style={{ backgroundColor: indicatorColor }}
+                        style={
+                          {
+                            "--color-bg": indicatorColor,
+                            "--color-border": indicatorColor,
+                          } as React.CSSProperties
+                        }
                       />
                     )
                   )}
@@ -271,9 +288,12 @@ function ChartLegendContent({
               <itemConfig.icon />
             ) : (
               <div
-                className={styles.legendDot}
-                // webhint-ignore-next-line: inline style required for dynamic color
-                style={{ backgroundColor: item.color }}
+                className="h-2 w-2 shrink-0 rounded-[2px]"
+                style={
+                  {
+                    backgroundColor: item.color,
+                  } as React.CSSProperties
+                }
               />
             )}
             {itemConfig?.label}
