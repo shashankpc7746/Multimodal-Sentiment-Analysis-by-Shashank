@@ -81,6 +81,7 @@ export default function App() {
           headers: {
             'Content-Type': 'application/json',
           },
+          signal: AbortSignal.timeout(60000), // 60 second timeout
         });
       } else {
         // Video/Audio analysis
@@ -90,11 +91,12 @@ export default function App() {
         response = await fetch(`${API_URL}/api/analyze`, {
           method: 'POST',
           body: formData,
+          signal: AbortSignal.timeout(120000), // 120 second timeout for video processing
         });
       }
       
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ detail: 'Analysis failed' }));
+        const error = await response.json().catch(() => ({ detail: `Server error: ${response.status}` }));
         throw new Error(error.detail || 'Analysis failed');
       }
       
@@ -140,6 +142,15 @@ export default function App() {
       
     } catch (error) {
       console.error('Analysis error:', error);
+      
+      // Show detailed error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const detailedError = errorMessage.includes('fetch')
+        ? 'Backend server is not running. Please start it with: cd api && python -m uvicorn main:app --reload --port 8000'
+        : errorMessage;
+      
+      alert(`❌ Analysis Failed:\n\n${detailedError}`);
+      
       setCurrentAnalysis(prev => prev ? {
         ...prev,
         status: 'failed',

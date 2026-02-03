@@ -262,4 +262,8 @@ async def analyze_text(text: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print("🚀 Starting Multimodal Sentiment Analysis API...")
+    print("📍 Server will be available at: http://localhost:8000")
+    print("📖 API Documentation at: http://localhost:8000/docs")
+    print("\n⏳ Loading ML models (this takes 10-15 seconds)...\n")
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
