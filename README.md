@@ -17,8 +17,8 @@ The primary goal was to build an end-to-end pipeline, from raw video input to se
 * Trained on a subset of the CMU-MOSI mini dataset.
 * Includes a Streamlit web application for uploading video clips and receiving real-time sentiment predictions.
 
-
 ## 📂 Project Structure
+
 ```
 ├── app/
 │   └── app.py                      # Streamlit application script
