@@ -75,13 +75,13 @@ export default function App() {
       let response;
       
       if (type === 'text') {
-        // Text-only analysis
-        response = await fetch(`${API_URL}/api/analyze-text?text=${encodeURIComponent(fileData as string)}`, {
+        // Text-only analysis - use POST with query parameter
+        const textContent = fileData as string;
+        response = await fetch(`${API_URL}/api/analyze-text?text=${encodeURIComponent(textContent)}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          signal: AbortSignal.timeout(60000), // 60 second timeout
         });
       } else {
         // Video/Audio analysis
@@ -91,7 +91,6 @@ export default function App() {
         response = await fetch(`${API_URL}/api/analyze`, {
           method: 'POST',
           body: formData,
-          signal: AbortSignal.timeout(120000), // 120 second timeout for video processing
         });
       }
       
@@ -145,11 +144,11 @@ export default function App() {
       
       // Show detailed error message
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const detailedError = errorMessage.includes('fetch')
-        ? 'Backend server is not running. Please start it with: cd api && python -m uvicorn main:app --reload --port 8000'
-        : errorMessage;
+      const detailedError = errorMessage.includes('fetch') || errorMessage.includes('Failed to fetch')
+        ? '❌ Cannot connect to backend server!\n\nPlease ensure the backend is running:\n\n1. Open PowerShell\n2. Run: cd "C:\\Multimodal Sentiment Analysis by Shashank\\api"\n3. Run: python main.py\n4. Wait for "✅ Models loaded successfully"\n5. Try again!'
+        : `❌ ${errorMessage}`;
       
-      alert(`❌ Analysis Failed:\n\n${detailedError}`);
+      alert(detailedError);
       
       setCurrentAnalysis(prev => prev ? {
         ...prev,

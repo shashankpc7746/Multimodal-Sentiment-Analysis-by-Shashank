@@ -114,18 +114,22 @@ async def analyze_video(file: UploadFile = File(...)):
     audio_wav_path = None
     
     try:
+        print(f"📹 Analyzing file: {file.filename}")
+        
         # Save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_file:
             vid_path = tmp_file.name
             content = await file.read()
             tmp_file.write(content)
         
+        print("Step 1/6: Extracting video features...")
         # Step 1: Extract video features
         video_feat_raw = extract_all_video_features(vid_path)
         if video_feat_raw is None:
             raise HTTPException(status_code=500, detail="Could not extract video features")
         video_feat_scaled = scaler_v.transform(video_feat_raw.reshape(1, -1))[0]
         
+        print("Step 2/6: Extracting audio...")
         # Step 2: Extract audio
         with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_audio_file:
             audio_wav_path = tmp_audio_file.name
@@ -133,15 +137,18 @@ async def analyze_video(file: UploadFile = File(...)):
         if not extract_audio(vid_path, audio_wav_path):
             raise HTTPException(status_code=500, detail="Could not extract audio from video")
         
+        print("Step 3/6: Transcribing audio...")
         # Step 3: Transcribe audio
         transcript = transcribe_audio(audio_wav_path)
         
+        print("Step 4/6: Extracting audio features...")
         # Step 4: Extract audio MFCC features
         mfcc_vec_raw = extract_mfcc_features(audio_wav_path)
         if mfcc_vec_raw is None:
             raise HTTPException(status_code=500, detail="Could not extract audio features")
         mfcc_vec_scaled = scaler_a.transform(mfcc_vec_raw.reshape(1, -1))[0]
         
+        print("Step 5/6: Extracting text features...")
         # Step 5: Extract text features
         text_feat_scaled = np.zeros(768)
         if transcript:
@@ -149,12 +156,14 @@ async def analyze_video(file: UploadFile = File(...)):
             if text_feat_raw is not None:
                 text_feat_scaled = scaler_t.transform(text_feat_raw.reshape(1, -1))[0]
         
+        print("Step 6/6: Running sentiment prediction...")
+        print("Step 6/6: Running sentiment prediction...")
         # Step 6: Run prediction
         X_vid = np.expand_dims(video_feat_scaled, 0)
         X_aud = np.expand_dims(mfcc_vec_scaled, 0)
         X_txt = np.expand_dims(text_feat_scaled, 0)
         
-        preds = model.predict([X_aud, X_vid, X_txt])
+        preds = model.predict([X_aud, X_vid, X_txt], verbose=0)
         idx = np.argmax(preds, axis=1)[0]
         sentiment = le.inverse_transform([idx])[0]
         
@@ -165,17 +174,20 @@ async def analyze_video(file: UploadFile = File(...)):
         # Calculate confidence (max probability)
         confidence = float(np.max(probabilities))
         
-        # Calculate individual modality contributions (simplified)
-        # This is a rough estimation - real attribution would need attention weights
-        video_score = float(video_feat_scaled.mean())
-        audio_score = float(mfcc_vec_scaled.mean())
-        text_score = float(text_feat_scaled.mean())
+        # Calculate individual modality contributions (normalized)
+        video_score = float(np.mean(np.abs(video_feat_scaled)))
+        audio_score = float(np.mean(np.abs(mfcc_vec_scaled)))
+        text_score = float(np.mean(np.abs(text_feat_scaled)))
         
         # Normalize scores to 0-1 range for display
-        total = abs(video_score) + abs(audio_score) + abs(text_score) + 1e-6
-        video_contrib = abs(video_score) / total
-        audio_contrib = abs(audio_score) / total
-        text_contrib = abs(text_score) / total
+        total = video_score + audio_score + text_score + 1e-6
+        video_contrib = video_score / total
+        audio_contrib = audio_score / total
+        text_contrib = text_score / total
+        
+        print(f"✅ Analysis complete: {sentiment} ({confidence:.2%})")
+        if transcript:
+            print(f"📝 Transcript: {transcript[:100]}...")
         
         return JSONResponse({
             "success": True,
@@ -220,7 +232,12 @@ async def analyze_text(text: str):
     if not model or not scaler_t or not le:
         raise HTTPException(status_code=503, detail="Models not loaded")
     
+    if not text or len(text.strip()) < 3:
+        raise HTTPException(status_code=400, detail="Text must be at least 3 characters")
+    
     try:
+        print(f"Analyzing text: {text[:50]}...")
+        
         # Extract text features
         text_feat_raw = extract_text_features(text)
         if text_feat_raw is None:
@@ -237,13 +254,15 @@ async def analyze_text(text: str):
         X_aud = np.expand_dims(mfcc_vec_scaled, 0)
         X_txt = np.expand_dims(text_feat_scaled, 0)
         
-        preds = model.predict([X_aud, X_vid, X_txt])
+        preds = model.predict([X_aud, X_vid, X_txt], verbose=0)
         idx = np.argmax(preds, axis=1)[0]
         sentiment = le.inverse_transform([idx])[0]
         
         probabilities = tf.nn.softmax(preds[0]).numpy()
         prob_dict = {label: float(prob) for label, prob in zip(le.classes_, probabilities)}
         confidence = float(np.max(probabilities))
+        
+        print(f"✅ Text analysis complete: {sentiment} ({confidence:.2%})")
         
         return JSONResponse({
             "success": True,
@@ -258,6 +277,7 @@ async def analyze_text(text: str):
         })
         
     except Exception as e:
+        print(f"❌ Text analysis error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 if __name__ == "__main__":
