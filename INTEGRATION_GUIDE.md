@@ -136,4 +136,4 @@ python-multipart==0.0.20
 3. See actual transcribed text
 4. Get real sentiment analysis!
 
-The lady in your video will now have her actual words transcribed! 🎤
+The lady in your video now have her actual words transcribed! 🎤
