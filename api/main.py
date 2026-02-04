@@ -105,8 +105,12 @@ async def analyze_video(file: UploadFile = File(...)):
         raise HTTPException(status_code=503, detail="Models not loaded")
     
     # Validate file type
-    allowed_extensions = ['.mp4', '.avi', '.mov', '.wav', '.mp3', '.m4a']
+    video_extensions = ['.mp4', '.avi', '.mov', '.mkv', '.webm']
+    audio_extensions = ['.wav', '.mp3', '.m4a', '.flac', '.ogg']
+    allowed_extensions = video_extensions + audio_extensions
     file_ext = Path(file.filename).suffix.lower()
+    
+    is_audio_only = file_ext in audio_extensions
     
     if file_ext not in allowed_extensions:
         raise HTTPException(
@@ -118,7 +122,8 @@ async def analyze_video(file: UploadFile = File(...)):
     audio_wav_path = None
     
     try:
-        print(f"📹 Analyzing file: {file.filename}")
+        file_type = "audio" if is_audio_only else "video"
+        print(f"📹 Analyzing {file_type} file: {file.filename}")
         
         # Save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_file:
@@ -126,43 +131,69 @@ async def analyze_video(file: UploadFile = File(...)):
             content = await file.read()
             tmp_file.write(content)
         
-        print("Step 1/6: Extracting video features...")
-        # Step 1: Extract video features
-        video_feat_raw = extract_all_video_features(vid_path)
-        if video_feat_raw is None:
-            raise HTTPException(status_code=500, detail="Could not extract video features")
-        video_feat_scaled = scaler_v.transform(video_feat_raw.reshape(1, -1))[0]
+        # Handle audio-only vs video files differently
+        if is_audio_only:
+            print("Step 1/5: Audio-only mode - using zero vector for video features...")
+            # For audio-only files, use zero vector for video features
+            video_feat_scaled = np.zeros(scaler_v.n_features_in_)
+            
+            print("Step 2/5: Using audio file directly...")
+            # Audio file can be used directly (or convert to wav if needed)
+            if file_ext == '.wav':
+                audio_wav_path = vid_path  # Use the file directly
+            else:
+                # Convert to wav
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_audio_file:
+                    audio_wav_path = tmp_audio_file.name
+                import subprocess
+                try:
+                    subprocess.run([
+                        'ffmpeg', '-y', '-i', vid_path, '-ar', '16000', '-ac', '1', audio_wav_path
+                    ], capture_output=True, check=True)
+                except Exception as e:
+                    print(f"FFmpeg conversion failed: {e}, trying with original file")
+                    audio_wav_path = vid_path
+        else:
+            print("Step 1/6: Extracting video features...")
+            # Step 1: Extract video features
+            video_feat_raw = extract_all_video_features(vid_path)
+            if video_feat_raw is None:
+                raise HTTPException(status_code=500, detail="Could not extract video features")
+            video_feat_scaled = scaler_v.transform(video_feat_raw.reshape(1, -1))[0]
+            
+            print("Step 2/6: Extracting audio from video...")
+            # Step 2: Extract audio from video
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_audio_file:
+                audio_wav_path = tmp_audio_file.name
+            
+            if not extract_audio(vid_path, audio_wav_path):
+                raise HTTPException(status_code=500, detail="Could not extract audio from video")
         
-        print("Step 2/6: Extracting audio...")
-        # Step 2: Extract audio
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_audio_file:
-            audio_wav_path = tmp_audio_file.name
-        
-        if not extract_audio(vid_path, audio_wav_path):
-            raise HTTPException(status_code=500, detail="Could not extract audio from video")
-        
-        print("Step 3/6: Transcribing audio...")
-        # Step 3: Transcribe audio
+        step_prefix = "3/5" if is_audio_only else "3/6"
+        print(f"Step {step_prefix}: Transcribing audio...")
+        # Transcribe audio
         transcript = transcribe_audio(audio_wav_path)
         
-        print("Step 4/6: Extracting audio features...")
-        # Step 4: Extract audio MFCC features
+        step_prefix = "4/5" if is_audio_only else "4/6"
+        print(f"Step {step_prefix}: Extracting audio features...")
+        # Extract audio MFCC features
         mfcc_vec_raw = extract_mfcc_features(audio_wav_path)
         if mfcc_vec_raw is None:
             raise HTTPException(status_code=500, detail="Could not extract audio features")
         mfcc_vec_scaled = scaler_a.transform(mfcc_vec_raw.reshape(1, -1))[0]
         
-        print("Step 5/6: Extracting text features...")
-        # Step 5: Extract text features
+        step_prefix = "5/5" if is_audio_only else "5/6"
+        print(f"Step {step_prefix}: Extracting text features...")
+        # Extract text features
         text_feat_scaled = np.zeros(768)
         if transcript:
             text_feat_raw = extract_text_features(transcript)
             if text_feat_raw is not None:
                 text_feat_scaled = scaler_t.transform(text_feat_raw.reshape(1, -1))[0]
         
-        print("Step 6/6: Running sentiment prediction...")
-        print("Step 6/6: Running sentiment prediction...")
-        # Step 6: Run prediction
+        step_prefix = "FINAL" if is_audio_only else "6/6"
+        print(f"Step {step_prefix}: Running sentiment prediction...")
+        # Run prediction
         X_vid = np.expand_dims(video_feat_scaled, 0)
         X_aud = np.expand_dims(mfcc_vec_scaled, 0)
         X_txt = np.expand_dims(text_feat_scaled, 0)
