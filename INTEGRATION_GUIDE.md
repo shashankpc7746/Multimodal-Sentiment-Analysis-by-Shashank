@@ -11,8 +11,9 @@ Your frontend is now connected to a real Python backend that performs actual sen
 Open a **new terminal** and run:
 
 ```powershell
-cd "C:\Multimodal Sentiment Analysis by Shashank\api"
-& "C:/Multimodal Sentiment Analysis by Shashank/multimodal_env/Scripts/python.exe" -m uvicorn main:app --reload --port 8000
+cd "d:\SHASHANK\Vs-code\Multimodal Sentiment Analysis by Shashank\api"
+$env:PYTHONPATH = "d:\SHASHANK\Vs-code\Multimodal Sentiment Analysis by Shashank\multimodal_env\Lib\site-packages;d:\SHASHANK\Vs-code\Multimodal Sentiment Analysis by Shashank"
+py -3.10 -m uvicorn main:app --reload --port 8000
 ```
 
 You should see:
@@ -22,12 +23,12 @@ You should see:
 INFO:     Uvicorn running on http://127.0.0.1:8000
 ```
 
-### 2. Start the React Frontend (Port 3001 or 5173)
+### 2. Start the React Frontend (Port 3000)
 
 In another terminal (or use the existing one):
 
 ```powershell
-cd "C:\Multimodal Sentiment Analysis by Shashank\frontend"
+cd "d:\SHASHANK\Vs-code\Multimodal Sentiment Analysis by Shashank\frontend"
 npm run dev
 ```
 
