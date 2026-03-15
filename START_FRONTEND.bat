@@ -1,6 +1,6 @@
 @echo off
 echo Starting Frontend React App...
 echo.
-cd /d "C:\Multimodal Sentiment Analysis by Shashank\frontend"
+cd /d "d:\SHASHANK\Vs-code\Multimodal Sentiment Analysis by Shashank\frontend"
 call npm run dev
 pause
