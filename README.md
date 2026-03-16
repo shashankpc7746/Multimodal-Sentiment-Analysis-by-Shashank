@@ -1,154 +1,171 @@
-# Multimodal Sentiment Classifier
-     
-## 🎬 Project Overview
- i0jkpklp;,09olu7yy  
-This project implements a Multimodal Sentiment Classifier that analyzes short video clips (5-15 seconds) to predict sentiment as **Positive**, **Negative**, or **Neutral**. It leverages three distinct modalities:
-* **Video:** Visual features extracted from video frames.
-* **Audio:** Acoustic features (MFCCs) extracted from the audio track.
-* **Text:** Semantic features extracted from the transcribed speech content.
+# Multimodal Sentiment Analysis — TriSenti AI
 
-The primary goal was to build an end-to-end pipeline, from raw video input to sentiment prediction, and demonstrate its functionality through a user-friendly Streamlit application.
+## 🎬 Project Overview
+
+This project implements a **Multimodal Sentiment Classifier** that analyzes video clips to predict sentiment as **Positive**, **Negative**, or **Neutral**. It fuses three modalities:
+
+- **Video:** Visual features extracted from video frames using ResNet18.
+- **Audio:** Acoustic features (MFCCs) extracted from the audio track.
+- **Text:** Semantic features from transcribed speech using DistilBERT.
+
+The project is served through a **React + TypeScript frontend (TriSenti AI)** connected to a **FastAPI Python backend**.
+
+---
 
 ## ✨ Features
 
-* Processes video, audio, and text modalities for sentiment analysis.
-* Uses ResNet18 for video features, MFCCs for audio features, and DistilBERT for text embeddings.
-* Employs an early fusion mechanism to combine multimodal features.
-* Trained on a subset of the CMU-MOSI mini dataset.
-* Includes a Streamlit web application for uploading video clips and receiving real-time sentiment predictions.
+- Processes video, audio, and text modalities for sentiment analysis.
+- Uses ResNet18 (video), MFCCs (audio), and DistilBERT (text embeddings).
+- Early fusion mechanism to combine multimodal features.
+- Trained on a subset of the CMU-MOSI mini dataset (76.25% accuracy).
+- Modern **React/TypeScript** frontend with real-time analysis UI.
+- **FastAPI** REST backend exposing `/api/analyze` and `/api/analyze-text` endpoints.
+
+---
 
 ## 📂 Project Structure
 
 ```
-├── app/
-│   └── app.py                      # Streamlit application script
-├── data/
-│   ├── mini_dataset/               # (Optional) Raw data (audio, video, transcripts)
-│   │   ├── segmented_audio/
-│   │   ├── segmented_video/
-│   │   └── segmented_transcripts/
-│   ├── mini_audio_features.pkl     # Pre-extracted audio features
-│   ├── mini_video_features.pkl     # Pre-extracted video features
-│   ├── mini_text_features.pkl      # Pre-extracted text features
-│   └── processed_dataset.csv       # CSV linking clips to annotations
+├── api/
+│   ├── main.py                         # FastAPI backend server
+│   └── requirements.txt                # Backend-specific deps
+├── frontend/                           # React + TypeScript (Vite) UI
+│   ├── src/
+│   └── package.json
+├── preprocessing/
+│   ├── extract_audio.py                # Extracts audio from video
+│   ├── extract_all_audio_features.py   # MFCC feature extraction
+│   ├── extract_all_video_features.py   # ResNet18 video features
+│   ├── extract_all_text_features.py    # DistilBERT text embeddings
+│   └── transcribe_audio.py             # Speech-to-text transcription
 ├── models/
 │   ├── final_multimodal_logits_model.h5 # Trained fusion model
-│   ├── label_encoder.pkl           # Saved LabelEncoder
-│   ├── scaler_audio.pkl            # Saved StandardScaler for audio
-│   ├── scaler_video.pkl            # Saved StandardScaler for video
-│   ├── scaler_text.pkl             # Saved StandardScaler for text
-│   └── multimodal_model.py         # Training script for the fusion model
-├── preprocessing/
-│   ├── extract_audio.py            # Extracts audio from video
-│   ├── extract_frames.py           # Extracts frames from video (if used by video feature extractor)
-│   ├── extract_all_audio_features.py # Generates MFCC features
-│   ├── extract_all_video_features.py # Generates ResNet18 video features
-│   ├── extract_all_text_features.py  # Generates DistilBERT text features (mean-pooled)
-│   └── transcribe_audio.py         # Transcribes audio to text
-├── README.md                       # This file
-├── requirements.txt                # Python package dependencies
-└── Report.pdf                      # (Example name for your final project report)
+│   ├── multimodal_model.py             # Model definition & training script
+│   ├── label_encoder.pkl
+│   ├── scaler_audio.pkl
+│   ├── scaler_text.pkl
+│   └── scaler_video.pkl
+├── training/
+│   └── evaluate_model.py
+├── data/
+│   ├── mini_dataset/                   # Raw segmented clips
+│   └── processed_dataset.csv
+├── requirements.txt                    # Full Python dependencies
+├── run_backend.ps1                     # ✅ Recommended backend start script
+├── START_BACKEND.bat                   # Windows BAT alternative
+└── START_FRONTEND.bat                  # Frontend start script
 ```
-## Setup Instructions
+
+---
+
+## 🚀 Running the Project
 
 ### Prerequisites
 
-* Python (3.8 - 3.10 recommended)
-* `pip` (Python package installer)
-* **FFMPEG:** MoviePy (used for audio/video processing) requires FFMPEG to be installed on your system and accessible in your PATH.
-    * **Windows:** Download FFMPEG static builds, extract, and add the `bin` folder to your system's PATH environment variable.
-    * **Linux (Ubuntu/Debian):** `sudo apt update && sudo apt install ffmpeg`
-    * **macOS:** `brew install ffmpeg`
+- Python 3.10
+- Node.js (v18+)
+- **FFmpeg** installed and on PATH
+  - Windows: Download from [ffmpeg.org](https://ffmpeg.org/download.html), add `bin/` to PATH
+  - Linux: `sudo apt install ffmpeg`
+  - macOS: `brew install ffmpeg`
 
 ### Installation
 
-1.  **Clone the repository (or download and extract the project files):**
-    ```bash
-    # If using Git
-    # git clone [your-repo-link]
-    # cd [your-repo-name]
-    ```
-    Navigate to the project's root directory.
-
-2.  **Create and activate a Python virtual environment:**
-    ```bash
-    python -m venv multimodal_env
-    ```
-    Activate the environment:
-    * Windows (Command Prompt/PowerShell):
-        ```cmd
-        multimodal_env\Scripts\activate
-        ```
-    * macOS/Linux (Bash/Zsh):
-        ```bash
-        source multimodal_env/bin/activate
-        ```
-
-3.  **Install dependencies:**
-    Ensure your virtual environment is activated, then run:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-### Dataset & Pre-trained Models
-
-* This project assumes pre-extracted features (`mini_audio_features.pkl`, `mini_video_features.pkl`, `mini_text_features.pkl`), the dataset metadata (`processed_dataset.csv`), the trained Keras model (`final_multimodal_logits_model.h5`), and scikit-learn scalers/encoder (`*.pkl`) are present in the `data/` and `models/` directories respectively as per the structure above.
-* These files are necessary to directly run the Streamlit application or re-evaluate the model.
-
-## 🚀 Running the Code
-
-Ensure your virtual environment (`multimodal_env`) is activated before running any scripts.
-
-### 1. Feature Extraction (Optional - If Re-generating Features)
-
-The required `.pkl` feature files are expected to be provided. If you need to re-generate them from raw segmented video/audio/text:
-* Populate the `data/mini_dataset/segmented_audio/`, `data/mini_dataset/segmented_video/`, and `data/mini_dataset/segmented_transcripts/` directories with the respective data.
-* Run the corresponding scripts:
-    ```bash
-    python preprocessing/extract_all_audio_features.py
-    python preprocessing/extract_all_video_features.py
-    python preprocessing/extract_all_text_features.py
-    ```
-    *Note: Ensure the input/output path constants within these scripts are correctly set if you modify the directory structure.*
-
-### 2. Model Training (Optional - If Re-training the Model)
-
-To re-train the multimodal fusion model using the `.pkl` feature files:
-```bash
-python models/multimodal_model.py
+**1. Create and activate the virtual environment:**
+```powershell
+python -m venv multimodal_env
+multimodal_env\Scripts\activate
 ```
-This script will:
 
-Load the pre-extracted features.
-Train the model.
-Save the trained model (final_multimodal_logits_model.h5), label encoder (label_encoder.pkl), and feature scalers (scaler_*.pkl) to the models/ directory.
-3. Running the Streamlit Application
-To launch the interactive sentiment prediction web application:
+**2. Install Python dependencies:**
+```bash
+pip install -r requirements.txt
+```
+
+**3. Install frontend dependencies:**
+```bash
+cd frontend
+npm install
+```
+
+---
+
+### ▶️ Start the Backend (Port 8000)
+
+Open a terminal and run:
+
+```powershell
+cd "d:\SHASHANK\Vs-code\Multimodal Sentiment Analysis by Shashank\api"
+$env:PYTHONPATH = "d:\SHASHANK\Vs-code\Multimodal Sentiment Analysis by Shashank\multimodal_env\Lib\site-packages;d:\SHASHANK\Vs-code\Multimodal Sentiment Analysis by Shashank"
+py -3.10 -m uvicorn main:app --reload --port 8000
+```
+
+Or simply run the provided script:
+```powershell
+.\run_backend.ps1
+```
+
+You should see:
+```
+✅ Models loaded successfully
+INFO: Uvicorn running on http://127.0.0.1:8000
+```
+
+---
+
+### ▶️ Start the Frontend (Port 3000)
+
+Open a **separate terminal**:
 
 ```bash
-streamlit run app/app.py --server.fileWatcherType none
+cd frontend
+npm run dev
 ```
-This will start a local server and typically open the application in your default web browser (e.g., at http://localhost:8501). You can then upload a video clip to get its sentiment analyzed.
 
-📄 Key Files Explained
-* **app/app.py:** The main script for the Streamlit web application. Handles video upload, calls preprocessing functions, loads the trained model and scalers, performs prediction, and displays results.
-* **models/multimodal_model.py:** The script used to define, train, and evaluate the multimodal fusion model. It also saves the trained model, label encoder, and feature scalers.
-* **preprocessing/:** This directory contains scripts for:
-* **extract_audio.py:** Extracting audio from video files.
-* **transcribe_audio.py:** Converting speech in audio files to text.
-* **extract_all_audio_features.py:** Computing MFCC features from audio.
-* **extract_all_video_features.py:** Computing ResNet18 features from video frames.
-* **extract_all_text_features.py:** Computing DistilBERT embeddings from text.
-* **requirements.txt:** Lists all Python dependencies required for the project.
-* **models/*.h5, models/*.pkl:** Stored trained Keras model, scikit-learn label encoder, and scalers.
-* **data/*.pkl, data/*.csv:** Stored pre-extracted features and dataset metadata.
-📈 Results Summary
-The model was trained on a subset of 400 clips from the CMU-MOSI mini dataset and achieved a test accuracy of 76.25%.
+Then open **http://localhost:3000** in your browser.
 
-Key F1-Scores on the test set:
+- API Docs: http://localhost:8000/docs
 
-* Positive Class: 0.83
-* Negative Class: 0.71
-* Neutral Class: 0.44
-  
+---
 
+## 📡 API Endpoints
+
+### `POST /api/analyze`
+Analyzes a video or audio file.
+
+**Request:** `multipart/form-data` with a video/audio file  
+**Response:**
+```json
+{
+  "success": true,
+  "sentiment": "Positive",
+  "confidence": 0.89,
+  "transcript": "Hello everyone! I'm excited to share...",
+  "probabilities": { "Positive": 0.89, "Negative": 0.05, "Neutral": 0.06 },
+  "breakdown": { "video": 0.35, "audio": 0.38, "text": 0.27 }
+}
+```
+
+### `POST /api/analyze-text`
+Analyzes raw text input (text-only mode).
+
+---
+
+## 📈 Model Results
+
+Trained on 400 clips from the CMU-MOSI mini dataset:
+
+| Metric | Value |
+|---|---|
+| Test Accuracy | **76.25%** |
+| Positive F1 | 0.83 |
+| Negative F1 | 0.71 |
+| Neutral F1 | 0.44 |
+
+---
+
+## 🐛 Troubleshooting
+
+- **Backend won't start?** — Check that all `.pkl` and `.h5` files exist in `models/`
+- **Frontend can't connect?** — Ensure backend is on port `8000`; check browser console for CORS errors
+- **Transcription failing?** — Requires internet connection (Google Speech Recognition API)
