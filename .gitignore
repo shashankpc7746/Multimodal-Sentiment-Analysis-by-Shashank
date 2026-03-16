@@ -173,3 +173,12 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Frontend (Node.js / Vite)
+node_modules/
+frontend/node_modules/
+frontend/.vite/
+frontend/dist/
+frontend/build/
+.vite/
+*.local
