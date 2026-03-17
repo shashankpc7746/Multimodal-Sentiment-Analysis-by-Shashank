@@ -12,6 +12,8 @@ import { UseCases } from './components/UseCases';
 import { ResultAfterTick } from './components/ResultAfterTick';
 import logoImage from 'figma:asset/3f3e9a7ff4d19c90aab4fecc28a836cb0f8ea242.png';
 
+export type ModelEngine = 'custom' | 'hf';
+
 export interface Analysis {
   id: string;
   filename: string;
@@ -19,6 +21,7 @@ export interface Analysis {
   timestamp: Date;
   status: 'processing' | 'completed' | 'failed';
   currentStep: number;
+  engine?: ModelEngine;
   sentiment?: {
     label: string;
     confidence: number;
@@ -27,13 +30,14 @@ export interface Analysis {
       audio: { emotion: string; score: number };
       text: { emotion: string; score: number };
     };
-    transcript?: string; // Add transcript for video/audio analysis
+    transcript?: string;
   };
 }
 
 export default function App() {
   const [currentAnalysis, setCurrentAnalysis] = useState<Analysis | null>(null);
   const [analysisHistory, setAnalysisHistory] = useState<Analysis[]>([]);
+  const [selectedModel, setSelectedModel] = useState<ModelEngine>('custom');
 
   const handleAnalyze = async (data: { type: 'video' | 'audio' | 'text'; content: File | string }) => {
     const newAnalysis: Analysis = {
@@ -45,6 +49,7 @@ export default function App() {
       timestamp: new Date(),
       status: 'processing',
       currentStep: 0,
+      engine: selectedModel,
     };
     
     setCurrentAnalysis(newAnalysis);
@@ -55,11 +60,11 @@ export default function App() {
       progressSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
     
-    // Call real backend API instead of simulation
-    await analyzeWithBackend(data.content, data.type, newAnalysis);
+    // Call real backend API
+    await analyzeWithBackend(data.content, data.type, newAnalysis, selectedModel);
   };
 
-  const analyzeWithBackend = async (fileData: File | string, type: 'video' | 'audio' | 'text', analysis: Analysis) => {
+  const analyzeWithBackend = async (fileData: File | string, type: 'video' | 'audio' | 'text', analysis: Analysis, engine: ModelEngine = 'custom') => {
     const API_URL = 'http://localhost:8000';
     
     // Animate progress steps 1-3 while backend processes
@@ -75,23 +80,18 @@ export default function App() {
       let response;
       
       if (type === 'text') {
-        // Text-only analysis - use POST with query parameter
+        // Text-only analysis
         const textContent = fileData as string;
-        response = await fetch(`${API_URL}/api/analyze-text?text=${encodeURIComponent(textContent)}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const endpoint = `${API_URL}/api/analyze-text?text=${encodeURIComponent(textContent)}&model_engine=${engine}`;
+        response = await fetch(endpoint, { method: 'POST' });
       } else {
         // Video/Audio analysis
         const formData = new FormData();
         formData.append('file', fileData as File);
-        
-        response = await fetch(`${API_URL}/api/analyze`, {
-          method: 'POST',
-          body: formData,
-        });
+        const endpoint = engine === 'hf'
+          ? `${API_URL}/api/analyze-hf`
+          : `${API_URL}/api/analyze`;
+        response = await fetch(endpoint, { method: 'POST', body: formData });
       }
       
       if (!response.ok) {
@@ -114,11 +114,12 @@ export default function App() {
       const completedAnalysis: Analysis = {
         ...analysis,
         status: 'completed',
-        currentStep: 5, // Mark as completed
+        currentStep: 5,
+        engine: (result.engine as ModelEngine) || engine,
         sentiment: {
           label: result.sentiment,
           confidence: result.confidence,
-          transcript: result.transcript !== "No speech detected" ? result.transcript : undefined,
+          transcript: result.transcript && result.transcript !== "No speech detected" ? result.transcript : undefined,
           emotions: {
             video: {
               emotion: emotions[Math.floor(Math.random() * emotions.length)],
@@ -145,7 +146,7 @@ export default function App() {
       // Show detailed error message
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const detailedError = errorMessage.includes('fetch') || errorMessage.includes('Failed to fetch')
-        ? '❌ Cannot connect to backend server!\n\nPlease ensure the backend is running:\n\n1. Open PowerShell\n2. Run: cd "C:\\Multimodal Sentiment Analysis by Shashank\\api"\n3. Run: python main.py\n4. Wait for "✅ Models loaded successfully"\n5. Try again!'
+        ? '❌ Cannot connect to backend server!\n\nPlease ensure the backend is running:\n\n1. Open PowerShell\n2. Run .\\run_backend.ps1\n3. Wait for "✅ Models loaded successfully"\n4. Try again!'
         : `❌ ${errorMessage}`;
       
       alert(detailedError);
@@ -280,7 +281,7 @@ export default function App() {
 
           {/* Input Section */}
           <section>
-            <MultimodalInput onAnalyze={handleAnalyze} />
+            <MultimodalInput onAnalyze={handleAnalyze} selectedModel={selectedModel} onModelChange={setSelectedModel} />
           </section>
 
           {/* Current Analysis */}
