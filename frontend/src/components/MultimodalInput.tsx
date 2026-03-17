@@ -1,15 +1,18 @@
 import React, { useState, useRef } from 'react';
-import { Upload, Film, Music, Type, CheckCircle, X } from 'lucide-react';
+import { Upload, Film, Music, Type, CheckCircle, X, Zap, Brain } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { InputPreview } from './InputPreview.js';
+import type { ModelEngine } from '../App';
 
 interface MultimodalInputProps {
   onAnalyze: (data: { type: 'video' | 'audio' | 'text'; content: File | string }) => void;
+  selectedModel: ModelEngine;
+  onModelChange: (model: ModelEngine) => void;
 }
 
 type InputMode = 'video' | 'audio' | 'text';
 
-export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
+export function MultimodalInput({ onAnalyze, selectedModel, onModelChange }: MultimodalInputProps) {
   const [activeMode, setActiveMode] = useState<InputMode>('video');
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -238,6 +241,80 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
         </div>
       )}
 
+      {/* Model Selector — shown when input is ready */}
+      <AnimatePresence>
+        {canAnalyze && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.35 }}
+            className="px-4"
+          >
+            <p className="text-center text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">
+              Choose Analysis Engine
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Custom Model Card */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => onModelChange('custom')}
+                className={`relative text-left p-4 rounded-2xl border-2 transition-all ${
+                  selectedModel === 'custom'
+                    ? 'border-blue-500 bg-blue-500/15 shadow-lg shadow-blue-500/20'
+                    : 'border-white/10 bg-white/5 hover:border-white/20'
+                }`}
+              >
+                {selectedModel === 'custom' && (
+                  <span className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-blue-400 shadow-md shadow-blue-400/60" />
+                )}
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow">
+                    <Brain className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-sm">TriSenti Custom Model</p>
+                    <p className="text-xs text-blue-300">Multimodal Fusion</p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  ResNet18 + MFCC + DistilBERT early fusion model trained on CMU-MOSI dataset.
+                </p>
+              </motion.button>
+
+              {/* HuggingFace RoBERTa Card */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => onModelChange('hf')}
+                className={`relative text-left p-4 rounded-2xl border-2 transition-all ${
+                  selectedModel === 'hf'
+                    ? 'border-amber-500 bg-amber-500/15 shadow-lg shadow-amber-500/20'
+                    : 'border-white/10 bg-white/5 hover:border-white/20'
+                }`}
+              >
+                {selectedModel === 'hf' && (
+                  <span className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-amber-400 shadow-md shadow-amber-400/60" />
+                )}
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-sm">RoBERTa (HuggingFace)</p>
+                    <p className="text-xs text-amber-300">State-of-the-Art NLP</p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  twitter-roberta-base-sentiment trained on 124M tweets. Fast &amp; highly accurate.
+                </p>
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Analyze Button */}
       <motion.button
         whileHover={{ scale: canAnalyze ? 1.02 : 1 }}
@@ -246,11 +323,17 @@ export function MultimodalInput({ onAnalyze }: MultimodalInputProps) {
         disabled={!canAnalyze}
         className={`w-full py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all mx-4 sm:mx-0 ${
           canAnalyze
-            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/50 hover:shadow-blue-500/70 cursor-pointer'
+            ? selectedModel === 'hf'
+              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/50 hover:shadow-amber-500/70 cursor-pointer'
+              : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/50 hover:shadow-blue-500/70 cursor-pointer'
             : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/10'
         }`}
       >
-        {canAnalyze ? '🚀 Analyze Sentiment' : '⚠️ Please provide input to analyze'}
+        {canAnalyze
+          ? selectedModel === 'hf'
+            ? '⚡ Analyze with RoBERTa'
+            : '🧠 Analyze with Custom Model'
+          : '⚠️ Please provide input to analyze'}
       </motion.button>
     </div>
   );
